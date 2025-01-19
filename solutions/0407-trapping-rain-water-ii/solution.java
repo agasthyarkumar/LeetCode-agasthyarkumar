@@ -1,43 +1,58 @@
+class T {
+  public int i;
+  public int j;
+  public int h; // heightMap[i][j] or the height after filling water
+  public T(int i, int j, int h) {
+    this.i = i;
+    this.j = j;
+    this.h = h;
+  }
+}
+
 class Solution {
-    public int trapRainWater(int[][] heightMap) {
-        if (heightMap == null || heightMap.length == 0) return 0;
-        
-        int m = heightMap.length;
-        int n = heightMap[0].length;
-        PriorityQueue<int[]> pq = new PriorityQueue<>((a, b) -> a[2] - b[2]);
-        boolean[][] visited = new boolean[m][n];
-        int[][] directions = {{0,1}, {1,0}, {0,-1}, {-1,0}};
-        int water = 0;
+  public int trapRainWater(int[][] heightMap) {
+    final int[][] dirs = {{0, 1}, {1, 0}, {0, -1}, {-1, 0}};
+    final int m = heightMap.length;
+    final int n = heightMap[0].length;
+    int ans = 0;
+    Queue<T> minHeap = new PriorityQueue<>((a, b) -> Integer.compare(a.h, b.h));
+    boolean[][] seen = new boolean[m][n];
 
-        for (int i = 0; i < m; i++) {
-            for (int j = 0; j < n; j++) {
-                if (i == 0 || i == m-1 || j == 0 || j == n-1) {
-                    pq.offer(new int[]{i, j, heightMap[i][j]});
-                    visited[i][j] = true;
-                }
-            }
-        }
-
-        while (!pq.isEmpty()) {
-            int[] cell = pq.poll();
-            int x = cell[0], y = cell[1], h = cell[2];
-
-            for (int[] dir : directions) {
-                int nx = x + dir[0];
-                int ny = y + dir[1];
-
-                if (nx >= 0 && nx < m && ny >= 0 && ny < n && !visited[nx][ny]) {
-                    visited[nx][ny] = true;
-                    
-                    if (heightMap[nx][ny] < h) {
-                        water += h - heightMap[nx][ny];
-                    }
-                    
-                    pq.offer(new int[]{nx, ny, Math.max(heightMap[nx][ny], h)});
-                }
-            }
-        }
-
-        return water;
+    for (int i = 0; i < m; ++i) {
+      minHeap.offer(new T(i, 0, heightMap[i][0]));
+      minHeap.offer(new T(i, n - 1, heightMap[i][n - 1]));
+      seen[i][0] = true;
+      seen[i][n - 1] = true;
     }
+
+    for (int j = 1; j < n - 1; ++j) {
+      minHeap.offer(new T(0, j, heightMap[0][j]));
+      minHeap.offer(new T(m - 1, j, heightMap[m - 1][j]));
+      seen[0][j] = true;
+      seen[m - 1][j] = true;
+    }
+
+    while (!minHeap.isEmpty()) {
+      final int i = minHeap.peek().i;
+      final int j = minHeap.peek().j;
+      final int h = minHeap.poll().h;
+      for (int[] dir : dirs) {
+        final int x = i + dir[0];
+        final int y = j + dir[1];
+        if (x < 0 || x == m || y < 0 || y == n)
+          continue;
+        if (seen[x][y])
+          continue;
+        if (heightMap[x][y] < h) {
+          ans += h - heightMap[x][y];
+          minHeap.offer(new T(x, y, h)); // Fill water in grid[x][y].
+        } else {
+          minHeap.offer(new T(x, y, heightMap[x][y]));
+        }
+        seen[x][y] = true;
+      }
+    }
+
+    return ans;
+  }
 }
