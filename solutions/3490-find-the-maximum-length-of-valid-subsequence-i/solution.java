@@ -1,16 +1,11 @@
 class Solution {
+  public int maximumLength(int[] nums) {
+    int[][] dp = new int[2][2];
+    for (final int x : nums)
+      for (int y = 0; y < 2; ++y)
+        dp[x % 2][y] = dp[y][x % 2] + 1;
 
-    public int maximumLength(int[] nums) { int k=2;
-        int[][] subarrayLengths = new int[k][k];  
-        int maxLength = 0;
-        for (int num : nums) {
-            int modValue = num % k;
-            for (int j = 0; j < k; ++j) {
-                int requiredMod = (j - modValue + k) % k;
-                subarrayLengths[modValue][requiredMod] = subarrayLengths[requiredMod][modValue] + 1;
-                maxLength = Math.max(maxLength, subarrayLengths[modValue][requiredMod]);
-            }
-        }
-        return maxLength;  
-    }
+    return Arrays.stream(dp).flatMapToInt(Arrays::stream).max().getAsInt();
+  }
 }
+
