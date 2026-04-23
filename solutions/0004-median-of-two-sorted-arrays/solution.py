@@ -1,23 +1,45 @@
 class Solution:
-  def findMedianSortedArrays(self, nums1: list[int], nums2: list[int]) -> float:
-    n1 = len(nums1)
-    n2 = len(nums2)
-    if n1 > n2:
-      return self.findMedianSortedArrays(nums2, nums1)
+    def findMedianSortedArrays(self, nums1, nums2):
+        """
+        Find median of two sorted arrays in O(log(m+n)) time.
 
-    l = 0
-    r = n1
+        :type nums1: List[int]
+        :type nums2: List[int]
+        :rtype: float
+        """
+        # Ensure nums1 is the smaller array to minimize binary search range
+        if len(nums1) > len(nums2):
+            nums1, nums2 = nums2, nums1
 
-    while l <= r:
-      partition1 = (l + r) // 2
-      partition2 = (n1 + n2 + 1) // 2 - partition1
-      maxLeft1 = -2**31 if partition1 == 0 else nums1[partition1 - 1]
-      maxLeft2 = -2**31 if partition2 == 0 else nums2[partition2 - 1]
-      minRight1 = 2**31 - 1 if partition1 == n1 else nums1[partition1]
-      minRight2 = 2**31 - 1 if partition2 == n2 else nums2[partition2]
-      if maxLeft1 <= minRight2 and maxLeft2 <= minRight1:
-        return (max(maxLeft1, maxLeft2) + min(minRight1, minRight2)) * 0.5 if (n1 + n2) % 2 == 0 else max(maxLeft1, maxLeft2)
-      elif maxLeft1 > minRight2:
-        r = partition1 - 1
-      else:
-        l = partition1 + 1
+        m, n = len(nums1), len(nums2)
+        total_len = m + n
+        half = (total_len + 1) // 2  # +1 handles both odd/even uniformly
+
+        lo, hi = 0, m
+        while lo <= hi:
+            i = (lo + hi) // 2          # partition of nums1
+            j = half - i                # partition of nums2
+
+            # Edge values for comparison; use infinities when out of bounds
+            left1 = nums1[i - 1] if i > 0 else float("-inf")
+            right1 = nums1[i] if i < m else float("inf")
+            left2 = nums2[j - 1] if j > 0 else float("-inf")
+            right2 = nums2[j] if j < n else float("inf")
+
+            # Check if partition is correct
+            if left1 <= right2 and left2 <= right1:
+                # Correct partition found
+                if total_len % 2:  # odd total length
+                    return float(max(left1, left2))
+                else:  # even total length
+                    return (max(left1, left2) + min(right1, right2)) / 2.0
+            elif left1 > right2:
+                # i is too big, move left
+                hi = i - 1
+            else:
+                # i is too small, move right
+                lo = i + 1
+
+        # If we exit loop, inputs were invalid (e.g., both arrays empty)
+        raise ValueError("Input arrays are not valid for median calculation.")
+
