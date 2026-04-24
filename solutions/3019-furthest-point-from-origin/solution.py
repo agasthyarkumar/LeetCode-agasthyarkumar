@@ -1,11 +1,13 @@
-class Solution(object):
-    def furthestDistanceFromOrigin(self, moves):
-        """
-        :type moves: str
-        :rtype: int
-        """
-        cntL = moves.count('L')
-        cntR = moves.count('R')
-        cntU = moves.count('_')
-        # Optimal distance = current bias magnitude + all wildcards added in that direction
-        return abs(cntR - cntL) + cntU
+from typing import Final
+
+class Solution:
+    def furthestDistanceFromOrigin(self, moves: str) -> int:
+        allowed: Final = {'L', 'R', '_'}
+        if any(ch not in allowed for ch in moves):
+            raise ValueError("moves may contain only 'L', 'R', or '_'")
+        left_cnt = moves.count('L')
+        right_cnt = moves.count('R')
+        wild_cnt = moves.count('_')
+        net_bias = right_cnt - left_cnt
+        return abs(net_bias) + wild_cnt
+
