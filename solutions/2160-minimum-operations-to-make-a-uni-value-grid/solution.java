@@ -6,16 +6,10 @@ class Solution {
     for (int i = 0; i < m; ++i)
       for (int j = 0; j < n; ++j)
         arr[i * n + j] = grid[i][j];
-    if (Arrays.stream(arr).anyMatch(a -> (a - arr[0]) % x != 0))
-      return -1;
-
+    if (Arrays.stream(arr).anyMatch(a -> (a - arr[0]) % x != 0)) return -1;
     int ans = 0;
-
     Arrays.sort(arr);
-
-    for (final int a : arr)
-      ans += Math.abs(a - arr[arr.length / 2]) / x;
-
+    for (final int a : arr)ans += Math.abs(a - arr[arr.length / 2]) / x;
     return ans;
   }
 }
