@@ -3,7 +3,7 @@ name: Sync LeetCode
 on:
   workflow_dispatch:
   schedule:
-    - cron: "0 2 * * *" # Runs daily at 02:00 UTC
+    - cron: "0 2 * * *"
 
 jobs:
   sync:
@@ -13,6 +13,11 @@ jobs:
       contents: write
 
     steps:
+      - name: Get current IST time
+        run: |
+          echo "TZ=Asia/Kolkata" >> $GITHUB_ENV
+          echo "NOW=$(TZ=Asia/Kolkata date '+%d %b %Y %I:%M:%S %p IST')" >> $GITHUB_ENV
+
       - name: Sync LeetCode
         uses: joshcai/leetcode-sync@v1.7
         with:
@@ -21,4 +26,4 @@ jobs:
           leetcode-session: ${{ secrets.LEETCODE_SESSION }}
           destination-folder: solutions
           verbose: true
-          commit-header: "[LeetCode]"
+          commit-header: "[LeetCode | ${{ env.NOW }}]"
